@@ -115,6 +115,10 @@ insurance_requests_data = [
   }
 ]
 
+users.each do |user|
+  Violation.find_or_create_by!(national_id: user.national_id, infractions: rand(2..30))
+end
+
 insurance_requests_data.each do |request_data|
   request = InsuranceRequest.find_or_initialize_by(
     user: request_data[:user],

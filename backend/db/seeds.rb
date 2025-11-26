@@ -116,7 +116,9 @@ insurance_requests_data = [
 ]
 
 users.each do |user|
-  Violation.find_or_create_by!(national_id: user.national_id, infractions: rand(2..30))
+  Violation.find_or_create_by!(national_id: user.national_id) do |violation|
+    violation.infractions = rand(2..30)
+  end
 end
 
 insurance_requests_data.each do |request_data|

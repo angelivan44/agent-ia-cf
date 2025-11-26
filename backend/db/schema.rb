@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_26_022818) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_26_024941) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -22,8 +22,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_26_022818) do
     t.date "birth_date"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "user_id"
+    t.bigint "vehicle_id"
     t.index ["email"], name: "index_insurance_requests_on_email", unique: true
     t.index ["national_id"], name: "index_insurance_requests_on_national_id", unique: true
+    t.index ["user_id"], name: "index_insurance_requests_on_user_id"
+    t.index ["vehicle_id"], name: "index_insurance_requests_on_vehicle_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -49,5 +53,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_26_022818) do
     t.index ["user_id"], name: "index_vehicles_on_user_id"
   end
 
+  add_foreign_key "insurance_requests", "users", on_delete: :nullify
+  add_foreign_key "insurance_requests", "vehicles", on_delete: :nullify
   add_foreign_key "vehicles", "users"
 end

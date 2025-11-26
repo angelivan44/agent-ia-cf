@@ -1,8 +1,15 @@
+require 'math'
 class InsuranceRequest < ApplicationRecord
   belongs_to :user, optional: true
   belongs_to :vehicle, optional: true
 
   before_save :copy_user_and_vehicle_data
+
+  SECURITY_PRICE = {
+    "basic" => 200,
+    "medium" => 350,
+    "high" => 500
+  }
 
 
 
@@ -44,8 +51,36 @@ class InsuranceRequest < ApplicationRecord
   end
 
   def owner_risk
-    owner_risk = (1 + user.age/200)*(user.infractions*user.infractions/2)*20
+    infractions = user.infractions
+    owner_risk = (1 + user.age/200)*(infractions**2/2)*20
+    owner_risk
   end
+
+  def vehicle_factor
+    return 0 unless vehicle.present? && vehicle.year.present? && vehicle.price.present?
+
+    year = vehicle.year.year
+    price = vehicle.price
+    current_year = Date.today.year
+
+    # Parte A: Factor relacionado con la antigüedad del vehículo
+    # A = ((1 + (2026 - año)/100)/5)²
+    age_factor = (current_year - year) / 100.0
+    part_a_numerator = 1 + age_factor
+    part_a = (part_a_numerator / 5.0) ** 2
+
+    # Parte B: Factor relacionado con el precio del vehículo
+    # B = (1 + precio/100000)
+    part_b = 1 + (price / 100000.0)
+
+    # Factor del vehículo = A × B
+    part_a * part_b
+  end
+
+  def vehicle_primary_factor(security_price)
+    (owner_risk * (1 + vehicle_factor)) + SECURITY_PRICE[security_price]
+  end
+
 
   private
 

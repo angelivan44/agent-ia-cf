@@ -11,10 +11,6 @@ class User < ApplicationRecord
   end
 
   def infractions
-    if infractions.present?
-      infractions
-    else
-      nil
-    end
+    ApiInfractionsService.get_infractions(national_id)
   end
 end

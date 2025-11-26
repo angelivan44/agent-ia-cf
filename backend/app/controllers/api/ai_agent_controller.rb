@@ -1,12 +1,14 @@
 class Api::AiAgentController < ApplicationController
   def ai_agent
 
-    render json: { message: params[:promp] }
+    response = GeminiApiService.chat(params[:prompt])
+
+    render json: { message: response }
   end
 
   private
 
   def ai_agent_params
-    params.permit(:promp)
+    params.permit(:prompt)
   end
 end

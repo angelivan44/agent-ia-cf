@@ -1,4 +1,3 @@
-require 'math'
 class InsuranceRequest < ApplicationRecord
   belongs_to :user, optional: true
   belongs_to :vehicle, optional: true
@@ -13,43 +12,41 @@ class InsuranceRequest < ApplicationRecord
 
 
 
-  def validate_user_age
+  def validate_user_age?
     if user.present? && user.birth_date.present?
       age = Date.today.year - user.birth_date.year
       unless age.between?(20, 80)
-        errors.add(:base, "User must be at least 18 years old")
+        return false
       end
     end
   end
 
-  def validate_vehicle_year
+  def validate_vehicle_year?
     if vehicle.present? && vehicle.year.present?
       if vehicle.year < 1980
-        errors.add(:base, "Vehicle year must be greater than 1980")
+        return false
       end
     end
   end
 
 
-  def validate_vehicle_price
+  def validate_vehicle_price?
     if vehicle.present? && vehicle.price.present?
       if vehicle.price < 50000
-        errors.add(:base, "Vehicle price must be greater than 50000")
+        return false
       end
     end
   end
 
-  def validate_vehicle_owner
+  def validate_vehicle_owner?
     if vehicle.present? && user.present?
       if vehicle.user != user
-        errors.add(:base, "Vehicle owner must be the same as the user")
+        return false
       end
     end
   end
 
-  def calculate_security_prima
-  end
-
+  
   def owner_risk
     infractions = user.infractions
     owner_risk = (1 + user.age/200)*(infractions**2/2)*20

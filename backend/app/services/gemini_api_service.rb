@@ -26,5 +26,105 @@ class GeminiApiService
     puts data
     data['candidates'].first['content']['parts'].first['text']
   end
+
+  def self.chat_with_tools(prompt, tools, system_instruction: nil)
+    uri = URI("#{BASE_URL}?key=#{API_KEY}")
+    
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = true
+
+    request = Net::HTTP::Post.new(uri)
+    request['Content-Type'] = 'application/json'
+
+    gemini_tools = tools.map do |tool|
+      {
+        functionDeclarations: [{
+          name: tool[:name],
+          description: tool[:description],
+          parameters: convert_schema_to_gemini_format(tool[:input_schema])
+        }]
+      }
+    end
+
+    body = { 
+      contents: [{ parts: [{ text: prompt }] }],
+      tools: gemini_tools
+    }
+    body[:systemInstruction] = { parts: [{ text: system_instruction }] } if system_instruction.present?
+    
+    Rails.logger.info("Sending to Gemini: #{body.to_json}")
+    request.body = body.to_json
+    response = http.request(request)
+    
+    data = JSON.parse(response.body)
+    Rails.logger.info("Gemini response: #{data.inspect}")
+    candidate = data['candidates'].first
+    
+    function_call_part = candidate['content']['parts'].find { |part| part['functionCall'] }
+    
+    if function_call_part
+      Rails.logger.info("Gemini wants to use tool: #{function_call_part['functionCall']['name']}")
+      {
+        wants_tool: true,
+        tool_name: function_call_part['functionCall']['name'],
+        arguments: function_call_part['functionCall']['args'] || {}
+      }
+    else
+      text_part = candidate['content']['parts'].find { |part| part['text'] }
+      Rails.logger.info("Gemini responded with text, no tool call")
+      {
+        wants_tool: false,
+        text: text_part ? text_part['text'] : ''
+      }
+    end
+  end
+
+  def self.chat_with_function_response(prompt, function_name, function_result, system_instruction: nil)
+    uri = URI("#{BASE_URL}?key=#{API_KEY}")
+    
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = true
+
+    request = Net::HTTP::Post.new(uri)
+    request['Content-Type'] = 'application/json'
+
+    contents = [
+      { parts: [{ text: prompt }] },
+      {
+        parts: [
+          {
+            functionResponse: {
+              name: function_name,
+              response: function_result
+            }
+          }
+        ]
+      }
+    ]
+
+    body = { contents: contents }
+    body[:systemInstruction] = { parts: [{ text: system_instruction }] } if system_instruction.present?
+    
+    request.body = body.to_json
+    response = http.request(request)
+    
+    data = JSON.parse(response.body)
+    data['candidates'].first['content']['parts'].first['text']
+  end
+
+  private
+
+  def self.convert_schema_to_gemini_format(schema)
+    {
+      type: schema[:type] || 'object',
+      properties: (schema[:properties] || {}).transform_values do |prop|
+        {
+          type: prop[:type],
+          description: prop[:description]
+        }
+      end,
+      required: schema[:required] || []
+    }
+  end
 end
 

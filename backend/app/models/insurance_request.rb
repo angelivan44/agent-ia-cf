@@ -80,7 +80,7 @@ class InsuranceRequest < ApplicationRecord
   end
 
   def self.calculate_insurance_premium(risk_factor, vehicle_factor)
-    (risk_factor.to_f * (1 + vehicle_factor.to_f)) + SECURITY_PRICE["high"]
+    (risk_factor.to_f * (1 + vehicle_factor.to_f)).round + SECURITY_PRICE["high"]
   end
 
   def validation_errors

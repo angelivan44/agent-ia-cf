@@ -58,7 +58,19 @@ class GeminiApiService
     
     data = JSON.parse(response.body)
     Rails.logger.info("Gemini response: #{data.inspect}")
+    
+    if data['candidates'].nil? || data['candidates'].empty?
+      Rails.logger.error("Gemini API error: #{data.inspect}")
+      error_message = data['error'] ? data['error']['message'] : 'Error desconocido de la API de Gemini'
+      raise "Error de Gemini API: #{error_message}"
+    end
+    
     candidate = data['candidates'].first
+    
+    if candidate.nil? || candidate['content'].nil?
+      Rails.logger.error("Gemini API error: candidate o content es nil. Data: #{data.inspect}")
+      raise "Error de Gemini API: respuesta inválida"
+    end
     
     function_call_part = candidate['content']['parts'].find { |part| part['functionCall'] }
     
@@ -132,7 +144,19 @@ class GeminiApiService
     response = http.request(request)
     
     data = JSON.parse(response.body)
+    
+    if data['candidates'].nil? || data['candidates'].empty?
+      Rails.logger.error("Gemini API error: #{data.inspect}")
+      error_message = data['error'] ? data['error']['message'] : 'Error desconocido de la API de Gemini'
+      raise "Error de Gemini API: #{error_message}"
+    end
+    
     candidate = data['candidates'].first
+    
+    if candidate.nil? || candidate['content'].nil?
+      Rails.logger.error("Gemini API error: candidate o content es nil. Data: #{data.inspect}")
+      raise "Error de Gemini API: respuesta inválida"
+    end
     
     function_call_part = candidate['content']['parts'].find { |part| part['functionCall'] }
     

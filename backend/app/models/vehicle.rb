@@ -13,9 +13,14 @@ class Vehicle < ApplicationRecord
     (part_a * part_b).round(2)
   end
 
+  def price_by_model
+    response = ApiModelPriceService.get_model_price(model)
+    response
+  end
+
   def valitation_error_message
     return ' el vehiculo es mas antiguo de 1980 no podemos venderle el seguro' if year.present? && year < 1980
-    return ' el vehiculo es menor de 50000 no podemos venderle el seguro' if price.present? && price < 50000
+    return ' el vehiculo es menor de 50000 no podemos venderle el seguro' if  price_by_model.to_i < 50000
     nil
   end
 end

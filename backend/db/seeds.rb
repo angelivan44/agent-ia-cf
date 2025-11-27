@@ -44,7 +44,22 @@ users_data = [
     national_id: "99887766-5",
     birth_date: Date.new(1988, 7, 30),
     owner: true
-
+  },
+  {
+    name: "Pedro",
+    last_name: "García",
+    email: "pedro.garcia@example.com",
+    national_id: "12345678-10",
+    birth_date: Date.new(1900, 5, 15),
+    owner: true
+  },
+  {
+    name: "Ana",
+    last_name: "Martínez",
+    email: "ana.martinez@example.com",
+    national_id: "55667788-11",
+    birth_date: Date.new(1987, 7, 30),
+    owner: true
   }
 ]
 
@@ -128,22 +143,22 @@ insurance_requests_data = [
   {
     code: "24235",
     user: users[1],
-    vehicle: vehicles[2]
+    vehicle: vehicles[1]
   },
   {
     code: "24236",
     user: users[2],
-    vehicle: vehicles[3]
+    vehicle: vehicles[2]
   },
   {
     code: "24237",
     user: users[3],
-    vehicle: vehicles[4]
+    vehicle: vehicles[3]
   },
   {
     code: "24238",
     user: users[4],
-    vehicle: vehicles[5]
+    vehicle: vehicles[4]
   }
 ]
 

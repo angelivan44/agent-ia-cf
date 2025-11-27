@@ -28,17 +28,38 @@ class Api::AiAgentController < ApplicationController
     loop do
       break if iteration >= max_iterations
 
-      if iteration == 0
-        gemini_response = GeminiApiService.chat_with_tools(prompt, tools, system_instruction: system_instruction)
-      else
-        conversation_context = build_conversation_context(prompt, executed_tools)
+      begin
+        if iteration == 0
+          gemini_response = GeminiApiService.chat_with_tools(prompt, tools, system_instruction: system_instruction)
+        else
+          conversation_context = build_conversation_context(prompt, executed_tools)
+          
+          gemini_response = GeminiApiService.chat_with_tools_and_history(
+            conversation_context,
+            executed_tools,
+            tools: tools,
+            system_instruction: system_instruction
+          )
+        end
+      rescue => e
         
-        gemini_response = GeminiApiService.chat_with_tools_and_history(
-          conversation_context,
-          executed_tools,
-          tools: tools,
-          system_instruction: system_instruction
-        )
+        # Si ya se ejecutaron herramientas, intentar enviar notificación si es necesario
+        send_notification_if_needed(executed_tools) if executed_tools.any?
+        
+        error_message = if e.message.include?('overloaded')
+          'El servicio de IA está temporalmente sobrecargado. Por favor, intenta nuevamente en unos momentos.'
+        else
+          'Error al comunicarse con el servicio de IA. Por favor, intenta nuevamente.'
+        end
+        
+        render json: { 
+          error: error_message,
+          details: e.message,
+          tools_used: executed_tools.map { |t| t[:name] },
+          tools_details: executed_tools,
+          progress: executed_tools.any? ? 'Se ejecutaron algunas herramientas antes del error' : 'No se pudo procesar la solicitud'
+        }, status: :service_unavailable
+        return
       end
 
       if gemini_response[:wants_tool]

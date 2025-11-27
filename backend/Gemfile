@@ -55,3 +55,8 @@ group :development, :test do
   # Factory for test data
   gem "factory_bot_rails"
 end
+
+group :development do
+  # Open emails in browser instead of sending them
+  gem "letter_opener"
+end

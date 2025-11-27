@@ -8,7 +8,7 @@ users_data = [
     last_name: "Pérez",
     email: "juan.perez@example.com",
     national_id: "12345678-9",
-    birth_date: Date.new(1985, 5, 15),
+    birth_date: Date.new(2015, 5, 15),
     owner: true
   },
   {

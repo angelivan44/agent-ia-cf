@@ -47,6 +47,8 @@ module McpTools
         }
       end
 
+      validation_errors = request.validation_errors
+
       {
         found: true,
         id: request.id,
@@ -57,13 +59,10 @@ module McpTools
         birth_date: request.birth_date&.to_s,
         created_at: request.created_at.to_s,
         user_id: request.user_id,
-        vehicle_id: request.vehicle_id
+        vehicle_id: request.vehicle_id,
+        valid: request.valid?,
+        validation_errors: validation_errors
       }
-    end
-
-    def valitation_error_message(request)
-      user = request.user
-      vehicle = request.vehicle
     end
   end
 end

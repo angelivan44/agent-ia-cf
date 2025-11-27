@@ -83,6 +83,22 @@ class InsuranceRequest < ApplicationRecord
     (risk_factor.to_f * (1 + vehicle_factor.to_f)) + SECURITY_PRICE["high"]
   end
 
+  def validation_errors
+    errors = []
+    
+    if user.present?
+      user_error = user.valitation_error_message
+      errors << user_error if user_error.present?
+    end
+    
+    if vehicle.present?
+      vehicle_error = vehicle.valitation_error_message
+      errors << vehicle_error if vehicle_error.present?
+    end
+    
+    errors
+  end
+
   private
 
   def copy_user_and_vehicle_data

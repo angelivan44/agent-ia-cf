@@ -30,7 +30,7 @@ module McpTools
       id = args['id'] || args[:id]
 
       if id.present?
-        request = InsuranceRequest.find_by(id: id)
+        request = InsuranceRequest.find_by(code: id)
       elsif email.present?
         request = InsuranceRequest.find_by(email: email)
       else
@@ -59,6 +59,11 @@ module McpTools
         user_id: request.user_id,
         vehicle_id: request.vehicle_id
       }
+    end
+
+    def valitation_error_message(request)
+      user = request.user
+      vehicle = request.vehicle
     end
   end
 end

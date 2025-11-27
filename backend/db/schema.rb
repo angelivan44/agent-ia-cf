@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_27_013236) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_27_031804) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -24,6 +24,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_27_013236) do
     t.datetime "updated_at", null: false
     t.bigint "user_id"
     t.bigint "vehicle_id"
+    t.string "code"
+    t.index ["code"], name: "index_insurance_requests_on_code", unique: true
     t.index ["email"], name: "index_insurance_requests_on_email", unique: true
     t.index ["national_id"], name: "index_insurance_requests_on_national_id", unique: true
     t.index ["user_id"], name: "index_insurance_requests_on_user_id"
@@ -38,6 +40,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_27_013236) do
     t.string "email"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "owner", default: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["national_id"], name: "index_users_on_national_id", unique: true
   end

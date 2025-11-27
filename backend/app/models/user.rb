@@ -23,4 +23,11 @@ class User < ApplicationRecord
 
     age_factor * infractions_factor * base_multiplier
   end
+
+  def valitation_error_message
+    return ' el cliente es menor de 20 años no podemos venderle el seguro' if age.present? && age < 20
+    return ' el cliente es mayor de 80 años no podemos venderle el seguro' if age.present? && age > 80
+    return ' el cliente tiene mas de 10 infracciones no podemos venderle el seguro' if infractions.present? && infractions[:infractions] > 10
+    nil
+  end
 end

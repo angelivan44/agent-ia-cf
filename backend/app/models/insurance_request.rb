@@ -82,4 +82,19 @@ class InsuranceRequest < ApplicationRecord
   def self.calculate_insurance_premium(risk_factor, vehicle_factor)
     (risk_factor.to_f * (1 + vehicle_factor.to_f)) + SECURITY_PRICE["high"]
   end
+
+  private
+
+  def copy_user_and_vehicle_data
+    if user.present?
+      self.email ||= user.email
+      self.national_id ||= user.national_id
+      self.birth_date ||= user.birth_date
+      self.full_name ||= "#{user.name} #{user.last_name}".strip
+    end
+
+    if vehicle.present?
+      self.vehicle_plate_number ||= vehicle.plate_number
+    end
+  end
 end

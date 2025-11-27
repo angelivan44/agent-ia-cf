@@ -8,35 +8,43 @@ users_data = [
     last_name: "Pérez",
     email: "juan.perez@example.com",
     national_id: "12345678-9",
-    birth_date: Date.new(1985, 5, 15)
+    birth_date: Date.new(1985, 5, 15),
+    owner: true
   },
   {
     name: "María",
     last_name: "González",
     email: "maria.gonzalez@example.com",
     national_id: "98765432-1",
-    birth_date: Date.new(1990, 8, 22)
+    birth_date: Date.new(1990, 8, 22),
+    owner: false
   },
   {
     name: "Carlos",
     last_name: "Rodríguez",
     email: "carlos.rodriguez@example.com",
     national_id: "11223344-5",
-    birth_date: Date.new(1975, 3, 10)
+    birth_date: Date.new(1975, 3, 10),
+    owner: false
+
   },
   {
     name: "Ana",
     last_name: "Martínez",
     email: "ana.martinez@example.com",
     national_id: "55667788-9",
-    birth_date: Date.new(1995, 11, 5)
+    birth_date: Date.new(1995, 11, 5),
+    owner: true
+
   },
   {
     name: "Luis",
     last_name: "Sánchez",
     email: "luis.sanchez@example.com",
     national_id: "99887766-5",
-    birth_date: Date.new(1988, 7, 30)
+    birth_date: Date.new(1988, 7, 30),
+    owner: true
+
   }
 ]
 
@@ -46,6 +54,7 @@ users = users_data.map do |user_data|
     user.last_name = user_data[:last_name]
     user.national_id = user_data[:national_id]
     user.birth_date = user_data[:birth_date]
+    user.owner = user_data[:owner]
   end
 end
 
@@ -112,18 +121,22 @@ end
 
 insurance_requests_data = [
   {
+    code: "24234",
     user: users[0],
     vehicle: vehicles[0]
   },
   {
+    code: "24235",
     user: users[1],
     vehicle: vehicles[2]
   },
   {
+    code: "24236",
     user: users[2],
     vehicle: vehicles[3]
   },
   {
+    code: "24237",
     user: users[3],
     vehicle: vehicles[4]
   }
@@ -137,9 +150,11 @@ end
 
 insurance_requests_data.each do |request_data|
   request = InsuranceRequest.find_or_initialize_by(
+    code: request_data[:code],
     user: request_data[:user],
     vehicle: request_data[:vehicle]
   )
+  request.code = request_data[:code]
   request.user = request_data[:user]
   request.vehicle = request_data[:vehicle]
   request.save!

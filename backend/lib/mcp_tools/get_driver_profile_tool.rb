@@ -31,6 +31,8 @@ module McpTools
         infractions: user.infractions
       }
     end
+
+    
   end
 end
 

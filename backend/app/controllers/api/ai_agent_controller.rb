@@ -14,7 +14,8 @@ class Api::AiAgentController < ApplicationController
       - NO ejecutes la misma herramienta dos veces con los mismos argumentos
       - Si ya ejecutaste una herramienta y obtuviste la información, usa otra herramienta diferente o responde con la información
       - Revisa el historial de herramientas ejecutadas antes de ejecutar una nueva
-      - Cuando tengas toda la información necesaria, responde directamente sin ejecutar más herramientas
+      - Cuando tengas toda la información necesaria (especialmente después de calcular el premium), responde directamente sin ejecutar más herramientas
+      - La notificación se enviará automáticamente al finalizar el proceso, no necesitas ejecutar 'send_notification' manualmente
       
       Luego integra todos los resultados en tu respuesta de forma natural.
       Si no hay suficiente información, indica al usuario que necesita más información.
@@ -45,8 +46,7 @@ class Api::AiAgentController < ApplicationController
         tool_arguments = gemini_response[:arguments] || {}
         
         if tool_already_executed?(executed_tools, tool_name, tool_arguments)
-          Rails.logger.warn("Tool #{tool_name} already executed with same arguments, forcing response")
-          final_response = "Ya he ejecutado la herramienta #{tool_name} con estos argumentos. Tengo la información necesaria."
+¡          final_response = "Ya he ejecutado la herramienta #{tool_name} con estos argumentos. Tengo la información necesaria."
           
           render json: { 
             message: final_response, 
@@ -85,6 +85,9 @@ class Api::AiAgentController < ApplicationController
         iteration += 1
       else
         final_response = gemini_response[:text]
+        
+        # Si se calculó el premium, enviar notificación automáticamente
+        send_notification_if_needed(executed_tools)
         
         render json: { 
           message: final_response, 
@@ -182,5 +185,33 @@ class Api::AiAgentController < ApplicationController
     executed_tools.any? do |tool|
       tool[:name] == tool_name && tool[:arguments].to_json == arguments.to_json
     end
+  end
+
+  def send_notification_if_needed(executed_tools)
+    # Buscar la solicitud de seguro
+    insurance_request_tool = executed_tools.find { |t| t[:name] == 'get_insurance_request' }
+    return unless insurance_request_tool
+
+    request_result = insurance_request_tool[:result]
+    return unless request_result.is_a?(Hash) && request_result['email'].present?
+
+    email = request_result['email']
+    is_valid = request_result['valid']
+    validation_errors = request_result['validation_errors'] || []
+
+    # Buscar si se calculó el premium
+    premium_tool = executed_tools.find { |t| t[:name] == 'calculate_insurance_premium' }
+    premium = premium_tool ? (premium_tool[:result]['insurance_premium'] rescue nil) : nil
+
+    # Siempre generar mensaje de notificación cuando se procesa una solicitud
+    if is_valid && premium.present?
+      message = "Estimado/a #{request_result['full_name'] || 'cliente'},\n\nSu solicitud de seguro ha sido procesada exitosamente.\n\nEl precio de la prima es: #{premium.round(2)} unidades monetarias smartcars.\n\nGracias por confiar en nosotros."
+    elsif validation_errors.any?
+      # Si es rechazada, siempre notificar
+      message = "Estimado/a #{request_result['full_name'] || 'cliente'},\n\nSu solicitud de seguro ha sido rechazada.\n\nMotivos de rechazo:\n#{validation_errors.map { |e| "- #{e}" }.join("\n")}\n\nPor favor, contacte con nosotros si tiene alguna consulta."
+    end
+
+    NotificationMailer.notification_email(email, message).deliver_later
+    Rails.logger.info("Notificación enviada a #{email}")
   end
 end

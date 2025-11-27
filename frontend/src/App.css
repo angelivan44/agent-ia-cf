@@ -191,7 +191,7 @@
 
 .send-button:active:not(:disabled) {
   transform: translateY(0);
-}
+  }
 
 .send-button:disabled {
   background: #ccc;

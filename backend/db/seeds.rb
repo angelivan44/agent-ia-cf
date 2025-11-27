@@ -25,7 +25,7 @@ users_data = [
     email: "carlos.rodriguez@example.com",
     national_id: "11223344-5",
     birth_date: Date.new(1975, 3, 10),
-    owner: false
+    owner: true
 
   },
   {
@@ -139,6 +139,11 @@ insurance_requests_data = [
     code: "24237",
     user: users[3],
     vehicle: vehicles[4]
+  },
+  {
+    code: "24238",
+    user: users[4],
+    vehicle: vehicles[5]
   }
 ]
 

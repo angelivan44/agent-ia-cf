@@ -54,37 +54,47 @@ vehicles_data = [
     user: users[0],
     plate_number: "ABC-1234",
     year: Date.new(2020, 1, 1),
-    price: 150000.0
+    price: 150000.0,
+    model: "Toyota Corolla",
+    currency: "smartcars"
   },
   {
     user: users[0],
     plate_number: "XYZ-5678",
     year: Date.new(2018, 1, 1),
-    price: 120000.0
+    price: 120000.0,
+    model: "Ford Mustang",
+    currency: "smartcars"
   },
   {
     user: users[1],
     plate_number: "DEF-9012",
     year: Date.new(2022, 1, 1),
-    price: 200000.0
+    price: 200000.0,
+    model: "Chevrolet Camaro",
+    currency: "smartcars"
   },
   {
     user: users[2],
     plate_number: "GHI-3456",
     year: Date.new(2015, 1, 1),
-    price: 80000.0
+    price: 80000.0,
+    model: "Honda Civic",
   },
   {
     user: users[3],
     plate_number: "JKL-7890",
     year: Date.new(2019, 1, 1),
-    price: 110000.0
+    price: 110000.0,
+    currency: "smartcars"
   },
   {
     user: users[4],
     plate_number: "MNO-2468",
     year: Date.new(2021, 1, 1),
-    price: 180000.0
+    price: 180000.0,
+    model: "Toyota Camry",
+    currency: "smartcars"
   }
 ]
 
@@ -93,6 +103,8 @@ vehicles = vehicles_data.map do |vehicle_data|
     vehicle.user = vehicle_data[:user]
     vehicle.year = vehicle_data[:year]
     vehicle.price = vehicle_data[:price]
+    vehicle.model = vehicle_data[:model]
+    vehicle.currency = vehicle_data[:currency]
   end
 end
 

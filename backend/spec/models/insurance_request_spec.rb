@@ -81,7 +81,7 @@ RSpec.describe InsuranceRequest, type: :model do
 
   describe '#owner_risk' do
     it 'calculates risk correctly' do
-      allow(ApiInfractionsService).to receive(:get_infractions).and_return(5)
+      allow(ApiInfractionsService).to receive(:get_infractions).and_return({ infractions: 5, details: [] })
       risk = insurance_request.owner_risk
       age = user.age
       expected = (1 + age / 200) * (5**2 / 2) * 20
@@ -89,7 +89,7 @@ RSpec.describe InsuranceRequest, type: :model do
     end
 
     it 'returns 0 when user has no infractions' do
-      allow(ApiInfractionsService).to receive(:get_infractions).and_return(0)
+      allow(ApiInfractionsService).to receive(:get_infractions).and_return({ infractions: 0, details: [] })
       risk = insurance_request.owner_risk
       expect(risk).to eq(0)
     end
@@ -132,7 +132,7 @@ RSpec.describe InsuranceRequest, type: :model do
 
   describe '#vehicle_primary_factor' do
     before do
-      allow(ApiInfractionsService).to receive(:get_infractions).and_return(3)
+      allow(ApiInfractionsService).to receive(:get_infractions).and_return({ infractions: 3, details: [] })
     end
 
     it 'calculates correctly with basic security' do

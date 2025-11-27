@@ -48,8 +48,9 @@ class InsuranceRequest < ApplicationRecord
 
   
   def owner_risk
-    infractions = user.infractions
-    owner_risk = (1 + user.age/200)*(infractions**2/2)*20
+    infractions_data = user.infractions
+    infractions_count = infractions_data.is_a?(Hash) ? infractions_data[:infractions] : infractions_data.to_i
+    owner_risk = (1 + user.age/200)*(infractions_count**2/2)*20
     owner_risk
   end
 
@@ -78,20 +79,7 @@ class InsuranceRequest < ApplicationRecord
     (owner_risk * (1 + vehicle_factor)) + SECURITY_PRICE[security_price]
   end
 
-
-  private
-
-  def copy_user_and_vehicle_data
-    if user.present?
-      self.email ||= user.email
-      self.national_id ||= user.national_id
-      self.birth_date ||= user.birth_date
-      self.full_name ||= "#{user.name} #{user.last_name}".strip
-    end
-
-    if vehicle.present?
-      self.vehicle_plate_number ||= vehicle.plate_number
-    end
+  def self.calculate_insurance_premium(risk_factor, vehicle_factor)
+    (risk_factor.to_f * (1 + vehicle_factor.to_f)) + SECURITY_PRICE["high"]
   end
-
 end

@@ -79,7 +79,15 @@ class GeminiApiService
     end
   end
 
-  def self.chat_with_function_response(prompt, function_name, function_result, system_instruction: nil)
+  def self.chat_with_function_response(prompt, function_name, function_result, tools: nil, system_instruction: nil)
+    chat_with_function_response_and_context(prompt, function_name, function_result, tools: tools, system_instruction: system_instruction)
+  end
+
+  def self.chat_with_function_response_and_context(context, function_name, function_result, tools: nil, system_instruction: nil)
+    chat_with_tools_and_history(context, [{ name: function_name, result: function_result }], tools: tools, system_instruction: system_instruction)
+  end
+
+  def self.chat_with_tools_and_history(context, executed_tools, tools: nil, system_instruction: nil)
     uri = URI("#{BASE_URL}?key=#{API_KEY}")
     
     http = Net::HTTP.new(uri.host, uri.port)
@@ -88,28 +96,61 @@ class GeminiApiService
     request = Net::HTTP::Post.new(uri)
     request['Content-Type'] = 'application/json'
 
-    contents = [
-      { parts: [{ text: prompt }] },
-      {
+    contents = [{ parts: [{ text: context }] }]
+
+    executed_tools.each do |tool|
+      contents << {
         parts: [
           {
             functionResponse: {
-              name: function_name,
-              response: function_result
+              name: tool[:name],
+              response: tool[:result]
             }
           }
         ]
       }
-    ]
+    end
 
     body = { contents: contents }
     body[:systemInstruction] = { parts: [{ text: system_instruction }] } if system_instruction.present?
     
+    if tools && tools.any?
+      gemini_tools = tools.map do |tool|
+        {
+          functionDeclarations: [{
+            name: tool[:name],
+            description: tool[:description],
+            parameters: convert_schema_to_gemini_format(tool[:input_schema])
+          }]
+        }
+      end
+      body[:tools] = gemini_tools
+    end
+    
+    Rails.logger.info("Sending context with #{executed_tools.length} tool(s) to Gemini")
     request.body = body.to_json
     response = http.request(request)
     
     data = JSON.parse(response.body)
-    data['candidates'].first['content']['parts'].first['text']
+    candidate = data['candidates'].first
+    
+    function_call_part = candidate['content']['parts'].find { |part| part['functionCall'] }
+    
+    if function_call_part && tools && tools.any?
+      Rails.logger.info("Gemini wants to use tool: #{function_call_part['functionCall']['name']}")
+      {
+        wants_tool: true,
+        tool_name: function_call_part['functionCall']['name'],
+        arguments: function_call_part['functionCall']['args'] || {}
+      }
+    else
+      text_part = candidate['content']['parts'].find { |part| part['text'] }
+      Rails.logger.info("Gemini responded with text, no tool call")
+      {
+        wants_tool: false,
+        text: text_part ? text_part['text'] : ''
+      }
+    end
   end
 
   private

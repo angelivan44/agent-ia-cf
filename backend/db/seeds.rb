@@ -55,7 +55,7 @@ vehicles_data = [
     plate_number: "ABC-1234",
     year: Date.new(2020, 1, 1),
     price: 150000.0,
-    model: "Toyota Corolla",
+    model: "Toyota",
     currency: "smartcars"
   },
   {
@@ -63,7 +63,7 @@ vehicles_data = [
     plate_number: "XYZ-5678",
     year: Date.new(2018, 1, 1),
     price: 120000.0,
-    model: "Ford Mustang",
+    model: "Ford",
     currency: "smartcars"
   },
   {
@@ -71,7 +71,7 @@ vehicles_data = [
     plate_number: "DEF-9012",
     year: Date.new(2022, 1, 1),
     price: 200000.0,
-    model: "Chevrolet Camaro",
+    model: "Chevrolet",
     currency: "smartcars"
   },
   {
@@ -79,13 +79,15 @@ vehicles_data = [
     plate_number: "GHI-3456",
     year: Date.new(2015, 1, 1),
     price: 80000.0,
-    model: "Honda Civic",
+    model: "Honda",
+    currency: "smartcars"
   },
   {
     user: users[3],
     plate_number: "JKL-7890",
     year: Date.new(2019, 1, 1),
     price: 110000.0,
+    model: "Mercedes",
     currency: "smartcars"
   },
   {
@@ -93,7 +95,7 @@ vehicles_data = [
     plate_number: "MNO-2468",
     year: Date.new(2021, 1, 1),
     price: 180000.0,
-    model: "Toyota Camry",
+    model: "Nissan",
     currency: "smartcars"
   }
 ]

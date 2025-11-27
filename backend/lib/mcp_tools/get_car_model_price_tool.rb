@@ -5,7 +5,7 @@ module McpTools
     end
 
     def self.description
-      'Obtiene modelo del auto, precio del auto en la moneda del vehículo. Requiere el número de placa del vehículo.'
+      'Obtiene modelo del auto, precio del auto en la moneda del vehículo. Requiere el modelo del vehículo.'
     end
 
     def self.input_schema
@@ -15,6 +15,7 @@ module McpTools
           model: {
             type: 'string',
             description: 'Modelo del vehículo',
+            enum: ['Toyota', 'Ford', 'Chevrolet', 'Honda', 'Mercedes', 'Nissan']
           }
         },
         required: ['model']
@@ -23,13 +24,10 @@ module McpTools
 
     def self.execute(args = {})
       model = args['model'] || args[:model]
-      vehicle = Vehicle.find_by(model: model)
-
+      response = ApiModelPriceService.get_model_price(model)
       {
         found: true,
-        year: vehicle.year&.to_s,
-        mode: 'ToDo',
-        owner_national_id: vehicle.user.national_id
+        price: response
       }
     end
   end
